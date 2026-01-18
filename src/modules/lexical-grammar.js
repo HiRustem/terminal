@@ -1,4 +1,4 @@
-import { patternHandlers, QUOTE_SYMBOL_PATTERN, SPACE_BAR_PATTERN } from "../constants/patterns.js";
+import { INVALID_PATTERN_NAME, KEYWORD_PATTERN_NAME, PATTERN_HANDLERS, QUOTE_SYMBOL_PATTERN, SPACE_BAR_PATTERN, TOKENS_VALIDATORS_DEFAULT_KEY } from "../constants/patterns.js";
 import { validate, returnInvalid, returnValid } from "./validators.js";
 
 var quotesErrorString = "Invalid character set. Сlosing quotes not found";
@@ -34,7 +34,7 @@ var tokenize = (input) => {
 }
 
 var getLexicalTokens = (substrings) => {
-  return substrings.reduce((accumulator, current) => {
+  return substrings.reduce((accumulator, current, currentIndex) => {
     if (!accumulator.isValid) {
       return accumulator;
     }
@@ -51,20 +51,26 @@ var getLexicalTokens = (substrings) => {
   }, { isValid: true, value: [] });
 };
 
-var getToken = (input, patternToCheck = "keyword") => {
-  if (patternToCheck === "invalid") {
+var getToken = (input, patternToCheck = KEYWORD_PATTERN_NAME) => {
+  if (patternToCheck === INVALID_PATTERN_NAME) {
     return returnInvalid(`Not valid pattern: ${input}`);
   }
 
-  if (input.match(patternHandlers[patternToCheck].pattern)) {
+  if (input.match(PATTERN_HANDLERS[patternToCheck].pattern)) {
     return returnValid({
       type: `${patternToCheck}-token`,
       value: input,
     });
   }
 
-  return getToken(input, patternHandlers[patternToCheck].next);
+  return getToken(input, PATTERN_HANDLERS[patternToCheck].next);
 }
+
+var validateToken = (token, validatorKey = TOKENS_VALIDATORS_DEFAULT_KEY) => {
+
+}
+
+
 
 export default (input) => validate(
   (valid) => (getLexicalTokens(valid.value)),
