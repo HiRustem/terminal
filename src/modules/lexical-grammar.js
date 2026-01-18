@@ -1,5 +1,5 @@
 import { patternHandlers, QUOTE_SYMBOL_PATTERN, SPACE_BAR_PATTERN } from "../constants/patterns.js";
-import { isValid, returnInvalid, returnValid } from "./validators.js";
+import { validate, returnInvalid, returnValid } from "./validators.js";
 
 var quotesErrorString = "Invalid character set. Сlosing quotes not found";
 
@@ -33,7 +33,23 @@ var tokenize = (input) => {
   return returnValid(substrings);
 }
 
-var getLexicalTokens = (substrings) => (returnValid(substrings.map((item) => (getToken(item)))));
+var getLexicalTokens = (substrings) => {
+  return substrings.reduce((accumulator, current) => {
+    if (!accumulator.isValid) {
+      return accumulator;
+    }
+
+    var currentToken = getToken(current);
+
+    if (!currentToken.isValid) {
+      accumulator.isValid = false;
+    }
+
+    accumulator.value.push(currentToken);
+
+    return accumulator;
+  }, { isValid: true, value: [] });
+};
 
 var getToken = (input, patternToCheck = "keyword") => {
   if (patternToCheck === "invalid") {
@@ -42,7 +58,7 @@ var getToken = (input, patternToCheck = "keyword") => {
 
   if (input.match(patternHandlers[patternToCheck].pattern)) {
     return returnValid({
-      type: `${patternToCheck}-node`,
+      type: `${patternToCheck}-token`,
       value: input,
     });
   }
@@ -50,19 +66,9 @@ var getToken = (input, patternToCheck = "keyword") => {
   return getToken(input, patternHandlers[patternToCheck].next);
 }
 
-var start = Date.now();
-
-var result = isValid(
+export default (input) => validate(
   (valid) => (getLexicalTokens(valid.value)),
   (error) => (error)
 )(
-  tokenize(
-    `git commit --soft -m "commit message" --flag -f -d "new message"`
-  )
-);
-
-result.value.forEach((item) => (console.log(item.value)));
-
-var end = Date.now();
-console.log("result", result);
-console.log("milliseconds: ", end - start);
+  tokenize(input)
+)
