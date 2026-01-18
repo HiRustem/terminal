@@ -1,4 +1,5 @@
-import { INVALID_PATTERN_NAME, KEYWORD_PATTERN_NAME, PATTERN_HANDLERS, QUOTE_SYMBOL_PATTERN, SPACE_BAR_PATTERN, TOKENS_VALIDATORS_DEFAULT_KEY } from "../constants/patterns.js";
+import { INVALID_PATTERN_NAME, KEYWORD_PATTERN_NAME, PATTERN_HANDLERS, QUOTE_SYMBOL_PATTERN, SPACE_BAR_PATTERN } from "../constants/pattern.js";
+import { TOKEN_SUFFIX } from "../constants/token/token.js";
 import { validate, returnInvalid, returnValid } from "./validators.js";
 
 var quotesErrorString = "Invalid character set. Сlosing quotes not found";
@@ -33,23 +34,28 @@ var tokenize = (input) => {
   return returnValid(substrings);
 }
 
-var getLexicalTokens = (substrings) => {
-  return substrings.reduce((accumulator, current, currentIndex) => {
-    if (!accumulator.isValid) {
+var getLexicalTokens = (substrings) => (
+  substrings.reduce(
+    (accumulator, current) => {
+      if (!accumulator.isValid) {
+        return accumulator;
+      }
+
+      var currentToken = getToken(current);
+      
+      if (!currentToken.isValid) {
+        return returnInvalid(`Unknown pattern: ${current}`)
+      }
+
+      accumulator.valid.push(currentToken);
+
       return accumulator;
+    }, {
+      isValid: true,
+      valid: []
     }
-
-    var currentToken = getToken(current);
-
-    if (!currentToken.isValid) {
-      accumulator.isValid = false;
-    }
-
-    accumulator.value.push(currentToken);
-
-    return accumulator;
-  }, { isValid: true, value: [] });
-};
+  )
+);
 
 var getToken = (input, patternToCheck = KEYWORD_PATTERN_NAME) => {
   if (patternToCheck === INVALID_PATTERN_NAME) {
@@ -58,7 +64,7 @@ var getToken = (input, patternToCheck = KEYWORD_PATTERN_NAME) => {
 
   if (input.match(PATTERN_HANDLERS[patternToCheck].pattern)) {
     return returnValid({
-      type: `${patternToCheck}-token`,
+      type: `${patternToCheck}-${TOKEN_SUFFIX}`,
       value: input,
     });
   }
@@ -66,15 +72,8 @@ var getToken = (input, patternToCheck = KEYWORD_PATTERN_NAME) => {
   return getToken(input, PATTERN_HANDLERS[patternToCheck].next);
 }
 
-var validateToken = (token, validatorKey = TOKENS_VALIDATORS_DEFAULT_KEY) => {
-
-}
-
-
-
 export default (input) => validate(
-  (valid) => (getLexicalTokens(valid.value)),
-  (error) => (error)
+  ({ valid }) => (getLexicalTokens(valid)),
 )(
   tokenize(input)
 )

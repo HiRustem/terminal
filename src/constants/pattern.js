@@ -30,26 +30,3 @@ export var PATTERN_HANDLERS = {
   },
   [INVALID_PATTERN_NAME]: null,
 }
-
-export var TOKENS_VALIDATORS_DEFAULT_KEY = "checkType";
-
-export var KEYWORD_TOKEN_NAME = `${KEYWORD_PATTERN_NAME}-token`;
-export var FLAG_TOKEN_NAME = `${FLAG_PATTERN_NAME}-token`;
-export var PROPERTY_TOKEN_NAME = `${PROPERTY_PATTERN_NAME}-token`;
-export var MESSAGE_TOKEN_NAME = `${MESSAGE_PATTERN_NAME}-token`;
-export var INVALID_TOKEN_NAME = `${INVALID_PATTERN_NAME}-token`;
-
-export var TOKENS_VALIDATORS = {
-  [KEYWORD_TOKEN_NAME]: {
-    [TOKENS_VALIDATORS_DEFAULT_KEY]: {
-      validate: ({ value: { type, value } }) => type === KEYWORD_TOKEN_NAME ? undefined : `Invalid keyword type: ${value}`,
-      next: null,
-    },
-  },
-  [FLAG_TOKEN_NAME]: {
-    [TOKENS_VALIDATORS_DEFAULT_KEY]: {
-      validate: (token) => token.type === FLAG_TOKEN_NAME ? undefined : `Invalid flag type: ${value}`,
-      next: null,
-    },
-  },
-}
