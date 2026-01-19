@@ -1,6 +1,6 @@
-import { returnInvalid, validate } from "../../modules/validators.js";
 import { FLAG_PATTERN_NAME, INVALID_PATTERN_NAME, KEYWORD_PATTERN_NAME, MESSAGE_PATTERN_NAME, PROPERTY_PATTERN_NAME } from "../pattern.js";
-import { METHOD_TOKEN_VARIANT_NAME, PACKAGE_TOKEN_VARIANT_NAME, parseKeywordToken } from "./keyword-token.js";
+import { parseKeywordToken } from "./keyword-token.js";
+import { parsePropertyToken } from "./property-token.js";
 
 export var TOKEN_SUFFIX = "token";
 
@@ -12,4 +12,5 @@ export var INVALID_TOKEN_NAME = `${INVALID_PATTERN_NAME}-${TOKEN_SUFFIX}`;
 
 export var TOKEN_PARSERS = {
   [KEYWORD_TOKEN_NAME]: (input) => (parseKeywordToken(input)),
+  [PROPERTY_TOKEN_NAME]: (input) => (parsePropertyToken(input)),
 }

@@ -1,11 +1,12 @@
 import { METHOD_TOKEN_VARIANT_NAME, PACKAGE_TOKEN_VARIANT_NAME } from "../constants/token/keyword-token.js";
-import { TOKEN_PARSERS } from "../constants/token/token.js";
+import { PROPERTY_VALUE_TOKEN_VARIANT_NAME } from "../constants/token/property-token.js";
+import { PROPERTY_TOKEN_NAME, TOKEN_PARSERS } from "../constants/token/token.js";
 import { returnInvalid, validate } from "./validators.js"
 
 var parseInvocations = (tokens) => (
   tokens.reduce(
     (accumulator, current, currentIndex, array) => {
-      if (!accumulator.isValid) {
+      if (!accumulator.isValid || accumulator.skipNext) {
         return accumulator;
       }
 
@@ -25,6 +26,12 @@ var parseInvocations = (tokens) => (
 
       if (!parsedNode.isValid) {
         accumulator = parsedNode;
+
+        return accumulator;
+      }
+
+      if (parsedNode.skipNext) {
+        accumulator.skipNext = parsedNode.skipNext;
 
         return accumulator;
       }
@@ -67,7 +74,17 @@ var PARSED_NODE_ACCUMULATOR_UPDATERS = {
       arguments: accumulator.arguments,
       flags: accumulator.flags
     }
-  )
+  ),
+  [PROPERTY_VALUE_TOKEN_VARIANT_NAME]: (current, accumulator) => {
+    accumulator.arguments.push(current);
+
+    return {
+      package: accumulator.package,
+      method: accumulator.method,
+      arguments: accumulator.arguments,
+      flags: accumulator.flags,
+    }
+  },
 }
 
 export default (input) => validate(
