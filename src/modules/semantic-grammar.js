@@ -1,12 +1,15 @@
+import { FLAG_TOKEN_VARIANT_NAME } from "../constants/token/flag-token.js";
 import { METHOD_TOKEN_VARIANT_NAME, PACKAGE_TOKEN_VARIANT_NAME } from "../constants/token/keyword-token.js";
 import { PROPERTY_VALUE_TOKEN_VARIANT_NAME } from "../constants/token/property-token.js";
-import { PROPERTY_TOKEN_NAME, TOKEN_PARSERS } from "../constants/token/token.js";
+import { TOKEN_PARSERS } from "../constants/token/token.js";
 import { returnInvalid, validate } from "./validators.js"
 
 var parseInvocations = (tokens) => (
   tokens.reduce(
     (accumulator, current, currentIndex, array) => {
       if (!accumulator.isValid || accumulator.skipNext) {
+        delete accumulator.skipNext;
+
         return accumulator;
       }
 
@@ -30,14 +33,6 @@ var parseInvocations = (tokens) => (
         return accumulator;
       }
 
-      if (parsedNode.skipNext) {
-        accumulator.skipNext = parsedNode.skipNext;
-
-        return accumulator;
-      }
-
-      // console.log('parsedNode', parsedNode);
-
       var updateAccumulator = PARSED_NODE_ACCUMULATOR_UPDATERS[parsedNode.valid.type];
 
       if (!updateAccumulator) {
@@ -45,6 +40,10 @@ var parseInvocations = (tokens) => (
       }
 
       accumulator.valid = updateAccumulator(parsedNode.valid, accumulator.valid);
+
+      if (parsedNode.valid.skipNext) {
+        accumulator.skipNext = true;
+      }
 
       return accumulator;
   }, {
@@ -77,6 +76,16 @@ var PARSED_NODE_ACCUMULATOR_UPDATERS = {
   ),
   [PROPERTY_VALUE_TOKEN_VARIANT_NAME]: (current, accumulator) => {
     accumulator.arguments.push(current);
+
+    return {
+      package: accumulator.package,
+      method: accumulator.method,
+      arguments: accumulator.arguments,
+      flags: accumulator.flags,
+    }
+  },
+  [FLAG_TOKEN_VARIANT_NAME]: (current, accumulator) => {
+    accumulator.flags.push(current);
 
     return {
       package: accumulator.package,

@@ -6,11 +6,13 @@ var inputElement = document.getElementById("input");
 inputElement.addEventListener("change", (event) => {
   var start = Date.now();
 
-  var lexical = lexicalAnalysis(event.target.value);
-  var invocations = parseInvocations(lexical);
-
-  console.log('lexical', lexical);
-  console.log('invocations', invocations);
+  console.log(
+    parseInvocations(
+      lexicalAnalysis(
+        event.target.value
+      )
+    )
+  );
   var end = Date.now();
   console.log("milliseconds:", end - start);
 });

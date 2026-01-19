@@ -44,7 +44,7 @@ var getLexicalTokens = (substrings) => (
       var currentToken = getToken(current);
       
       if (!currentToken.isValid) {
-        return returnInvalid(`Unknown pattern: ${current}`)
+        return returnInvalid(`Unknown pattern: ${current === "" ? "extra space" : current}`)
       }
 
       accumulator.valid.push(currentToken);
