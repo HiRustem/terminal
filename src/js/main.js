@@ -7,7 +7,7 @@ import { RESULT_OBJECT_TYPE_ENUM } from './system/model/constants.js';
 
 var inputElement = document.getElementById( "input" );
 
-inputElement.addEventListener("change", ( event ) => {
+inputElement.addEventListener( "change", ( event ) => {
   var start = Date.now();
 
   var parsed = parseRawString( createResultObject( RESULT_OBJECT_TYPE_ENUM.NORMAL )( event.target.value ) );
@@ -22,4 +22,4 @@ inputElement.addEventListener("change", ( event ) => {
   console.log( "lexical", lexical );
   console.log( "semantic", semantic );
   console.log( "milliseconds:", end - start );
-});
+} );
